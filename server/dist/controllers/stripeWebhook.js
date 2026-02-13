@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import prisma from "../lib/prisma";
+import prisma from "../lib/prisma.js";
 export const stripeWebhook = async (request, response) => {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;

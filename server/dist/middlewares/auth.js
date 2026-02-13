@@ -1,5 +1,10 @@
-import { auth } from "../lib/auth";
+import { auth } from "../lib/auth.js";
 import { fromNodeHeaders } from "better-auth/node";
+/**
+ * Protects routes by checking for a valid session.
+ * If a session is found, it adds the user ID to the request object.
+ * If no session is found, it returns a 401 Unauthorized response.
+ */
 export const protect = async (req, res, next) => {
     try {
         const session = await auth.api.getSession({

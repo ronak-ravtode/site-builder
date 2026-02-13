@@ -1,5 +1,5 @@
-import prisma from "../lib/prisma";
-import openai from "../configs/openai";
+import prisma from "../lib/prisma.js";
+import openai from "../configs/openai.js";
 import Stripe from "stripe";
 // Get User Credits
 export const getUserCredits = async (req, res) => {

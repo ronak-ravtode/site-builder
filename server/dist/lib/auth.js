@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import prisma from "./prisma";
+import prisma from "./prisma.js";
 const trustedOrigins = [
     "http://localhost:5173",
     ...(process.env.TRUSTED_ORIGIN?.split(",") || []),

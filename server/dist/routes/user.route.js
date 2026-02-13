@@ -1,6 +1,6 @@
 import express from "express";
-import { purchaseCredits, createUserProject, getUserCredits, getUserProject, getUserProjects, togglePublish } from "../controllers/user.controller";
-import { protect } from "../middlewares/auth";
+import { purchaseCredits, createUserProject, getUserCredits, getUserProject, getUserProjects, togglePublish } from "../controllers/user.controller.js";
+import { protect } from "../middlewares/auth.js";
 const userRouter = express.Router();
 userRouter.get('/credits', protect, getUserCredits);
 userRouter.post('/project', protect, createUserProject);

@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import prisma from "../lib/prisma";
-import openai from "../configs/openai";
+import prisma from "../lib/prisma.js";
+import openai from "../configs/openai.js";
 
 // Make Revision
 export const makeRevision = async (req: Request<{ projectId: string }>, res: Response) => {
     const userId = req.userId;
+
     try {
         if (!userId) {
             return res.status(401).json({ message: 'Unauthorized' });

@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { appPlans } from '../assets/assets'
 import Footer from '../components/Footer'
+import { authClient } from '@/lib/auth-client'
+import { toast } from 'sonner'
+import api from '@/configs/axios'
 
 interface Plan {
   id: string
@@ -12,13 +15,25 @@ interface Plan {
 }
 
 const Pricing = () => {
+  const { data: session } = authClient.useSession()
   const [plans] = useState<Plan[]>(appPlans)
 
   const handlePurchase = async (planId: string) => {
+    try {
+      if (!session) {
+        return toast("Please login to purchase a plan")
+      }
 
+      const { data } = await api.post("/api/user/purchase-credits", { planId })
+      window.location.href = data.payment_link
+      
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message)
+      console.log(error)
+    }
   }
 
-  
+
   return (
     <>
       <div className='w-full max-w-5xl mx-auto z-20 max-md:p-4 min-h-[80vh]'>

@@ -1,5 +1,5 @@
-import prisma from "../lib/prisma.js";
-import openai from "../configs/openai.js";
+import prisma from "../lib/prisma";
+import openai from "../configs/openai";
 // Make Revision
 export const makeRevision = async (req, res) => {
     const userId = req.userId;

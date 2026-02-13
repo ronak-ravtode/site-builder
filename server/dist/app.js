@@ -2,10 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import { toNodeHandler } from 'better-auth/node';
-import { auth } from './lib/auth.js';
-import userRouter from './routes/user.route.js';
-import projectRouter from './routes/project.route.js';
-import { stripeWebhook } from './controllers/stripeWebhook.js';
+import { auth } from './lib/auth';
+import userRouter from './routes/user.route';
+import projectRouter from './routes/project.route';
+import { stripeWebhook } from './controllers/stripeWebhook';
 const app = express();
 const corsOptions = {
     origin: ['http://localhost:5173', ...(process.env.TRUSTED_ORIGIN?.split(',') || [])],

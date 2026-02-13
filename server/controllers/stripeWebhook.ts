@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Stripe from "stripe";
-import prisma from "../lib/prisma.js";
+import prisma from "../lib/prisma";
 
 export const stripeWebhook = async (request: Request, response: Response) => {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);

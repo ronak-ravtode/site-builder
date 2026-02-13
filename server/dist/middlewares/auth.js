@@ -1,4 +1,4 @@
-import { auth } from "../lib/auth.js";
+import { auth } from "../lib/auth";
 import { fromNodeHeaders } from "better-auth/node";
 export const protect = async (req, res, next) => {
     try {

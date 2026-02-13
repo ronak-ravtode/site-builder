@@ -63,7 +63,7 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
 
         // Enhance user Prompt
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'z-ai/glm-4.5-air:free',
+            model: 'arcee-ai/trinity-mini:free',
             messages: [
                 {
                     role: 'system',
@@ -104,7 +104,7 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
 
         // Generate website code
         const codeGenerationCode = await openai.chat.completions.create({
-            model: 'z-ai/glm-4.5-air:free',
+            model: 'arcee-ai/trinity-mini:free',
             messages: [
                 {
                     role: 'system',
@@ -129,6 +129,23 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
         })
 
         const code = codeGenerationCode.choices[0].message.content || '';
+
+        if (!code) {
+            await prisma.conversation.create({
+                data: {
+                    role: 'assistant',
+                    content: `Unable to generate the code, please try again`,
+                    projectId: projectId
+                }
+            })
+            await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    credits: { increment: 5 }
+                }
+            })
+            return
+        }
 
         const version = await prisma.version.create({
             data: {

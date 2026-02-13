@@ -4,27 +4,48 @@ import { Loader2Icon, PlusIcon, TrashIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { dummyProjects } from '../assets/assets'
 import Footer from '../components/Footer'
+import { toast } from 'sonner'
+import api from '@/configs/axios'
+import { authClient } from '@/lib/auth-client'
 
 const MyProjects = () => {
+    const {data:session,isPending} = authClient.useSession()
     const [loading, setLoading] = useState(true)
     const [projects, setProjects] = useState<Project[]>([])
     const navigate = useNavigate()
 
     const fetchProjects = async () => {
-        setProjects(dummyProjects)
-        //simulate loading
-        setTimeout(() => {
+        try {
+            const { data } = await api.get('/api/user/projects')
+            setProjects(data.projects)
             setLoading(false)
-        }, 1000)
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || error.message)
+            console.log(error)
+        }
     }
 
-    const deleteProject = async(projectId:string) => {
-        
+    const deleteProject = async (projectId: string) => {
+        try {
+            const confirm = window.confirm('Are you sure you want to delete this project?')
+            if(!confirm) return
+            const {data} = await api.delete(`/api/user/projects/${projectId}`)
+            toast.success(data.message)
+            fetchProjects()
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || error.message)
+            console.log(error)
+        }
     }
 
     useEffect(() => {
-        fetchProjects()
-    }, [])
+        if(session?.user && !isPending){
+            fetchProjects()
+        }else if(!isPending && !session?.user){
+            navigate('/')
+            toast('Please login to access your projects')
+        }
+    }, [session?.user])
     return (
         <>
             <div className='px-4 md:px-16 lg:px-24 xl:px-32'>
@@ -41,7 +62,7 @@ const MyProjects = () => {
                         <div className='flex flex-wrap gap-3.5'>
                             {
                                 projects.map((project) => (
-                                    <div onClick={()=>navigate(`/projects/${project.id}`)} key={project.id} className='relative group w-72 max-sm:mx-auto cursor-pointer bg-gray-900/60 rounded-lg overflow-hidden shadow-md group-hover:shadow-indigo-700/30 border border-gray-700 hover:border-indigo-800/80 transition-all duration-300'>
+                                    <div onClick={() => navigate(`/projects/${project.id}`)} key={project.id} className='relative group w-72 max-sm:mx-auto cursor-pointer bg-gray-900/60 rounded-lg overflow-hidden shadow-md group-hover:shadow-indigo-700/30 border border-gray-700 hover:border-indigo-800/80 transition-all duration-300'>
                                         {/* Desktop like mini-preview */}
                                         <div className='relative w-full h-40 bg-gray-900 border-b border-gray-700 overflow-hidden'>
                                             {
@@ -62,17 +83,17 @@ const MyProjects = () => {
                                                 <button className='px-2.5 py-0.5 mt-1 ml-2 text-xs bg-gray-800 border border-gray-700 rounded-full'>Website</button>
                                             </div>
                                             <p className='text-sm text-gray-400 mt-1 line-clamp-2'>{project.initial_prompt}</p>
-                                            <div onClick={(e)=>e.stopPropagation()} className='flex items-center justify-between mt-6'>
+                                            <div onClick={(e) => e.stopPropagation()} className='flex items-center justify-between mt-6'>
                                                 <span className='text-xs text-gray-500'>{new Date(project.createdAt).toLocaleDateString()}</span>
                                                 <div className='flex gap-3 text-white text-sm'>
-                                                    <button onClick={()=>navigate(`/preview/${project.id}`)} className='px-3 py-1.5 bg-white/10 hover:bg-white/15 rounded-md transition-all'>Preview</button>
-                                                    <button onClick={()=>navigate(`/projects/${project.id}`)} className='transition-colors px-3 py-1.5 bg-white/10 hover:bg-white/15 rounded-md'>Open</button>
+                                                    <button onClick={() => navigate(`/preview/${project.id}`)} className='px-3 py-1.5 bg-white/10 hover:bg-white/15 rounded-md transition-all'>Preview</button>
+                                                    <button onClick={() => navigate(`/projects/${project.id}`)} className='transition-colors px-3 py-1.5 bg-white/10 hover:bg-white/15 rounded-md'>Open</button>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div onClick={(e)=>e.stopPropagation()}>
+                                        <div onClick={(e) => e.stopPropagation()}>
                                             <TrashIcon className='absolute top-3 right-3 scale-0 group-hover:scale-100 bg-white p-1.5 size-7 rounded text-red-500 text-xl cursor-pointer transition-all'
-                                            onClick={()=>deleteProject(project.id)} />
+                                                onClick={() => deleteProject(project.id)} />
                                         </div>
                                     </div>
                                 ))

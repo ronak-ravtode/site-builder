@@ -1,0 +1,11 @@
+{
+  "name": "site-builder",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

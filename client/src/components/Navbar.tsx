@@ -11,7 +11,6 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [credits, setCredits] = useState(0);
-    console.log(credits)
 
     const { data: session } = authClient.useSession();
 
@@ -26,7 +25,6 @@ const Navbar = () => {
                     _t: Date.now(),
                 },
             });
-            console.log(data);
             setCredits(typeof data?.credits === 'number' ? data.credits : Number(data?.credits ?? 0));
         } catch (error: any) {
             toast.error(error?.response?.data?.message || error.message);

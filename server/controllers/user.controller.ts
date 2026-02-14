@@ -435,7 +435,7 @@ export const purchaseCredits = async (req: Request<{ projectId: string }>, res: 
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
         const session = await stripe.checkout.sessions.create({
-            success_url: `${origin}/loading`,
+            success_url: `${origin}/loading?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}`,
             line_items: [
                 {
@@ -459,6 +459,75 @@ export const purchaseCredits = async (req: Request<{ projectId: string }>, res: 
 
         return res.json({ payment_link: session.url })
 
+    } catch (error: any) {
+        console.log(error)
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+
+// Confirm Stripe checkout session (fallback when webhook is not delivered)
+export const confirmCheckoutSession = async (req: Request, res: Response) => {
+    try {
+        const userId = req.userId;
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" })
+        }
+
+        const { sessionId } = req.body as { sessionId?: string };
+        if (!sessionId) {
+            return res.status(400).json({ message: "sessionId is required" })
+        }
+
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+        if (session.payment_status !== 'paid') {
+            return res.status(400).json({ message: "Payment not completed" })
+        }
+
+        const { transactionId, appId } = (session.metadata || {}) as {
+            transactionId?: string;
+            appId?: string;
+        };
+
+        if (!transactionId) {
+            return res.status(400).json({ message: "Missing transaction metadata" })
+        }
+        if (appId !== 'ai-site-builder') {
+            return res.status(400).json({ message: "Invalid app metadata" })
+        }
+
+        const existing = await prisma.transaction.findUnique({ where: { id: transactionId } });
+        if (!existing) {
+            return res.status(404).json({ message: "Transaction not found" })
+        }
+
+        if (existing.userId !== userId) {
+            return res.status(403).json({ message: "Forbidden" })
+        }
+
+        if (existing.isPaid) {
+            const currentUser = await prisma.user.findUnique({ where: { id: userId }, select: { credits: true } });
+            return res.status(200).json({ ok: true, alreadyProcessed: true, credits: currentUser?.credits ?? 0 })
+        }
+
+        const transaction = await prisma.transaction.update({
+            where: { id: transactionId },
+            data: { isPaid: true }
+        });
+
+        const updatedUser = await prisma.user.update({
+            where: { id: transaction.userId },
+            data: {
+                credits: {
+                    increment: transaction.credits
+                }
+            },
+            select: { credits: true }
+        });
+
+        return res.status(200).json({ ok: true, alreadyProcessed: false, credits: updatedUser.credits })
     } catch (error: any) {
         console.log(error)
         return res.status(500).json({ message: error.message })

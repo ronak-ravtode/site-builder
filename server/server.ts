@@ -11,12 +11,24 @@ const port = Number(process.env.PORT) || 3000;
 
 const app = express();
 
-const corsOptions = {
-    origin: ['http://localhost:5173', ...(process.env.TRUSTED_ORIGIN?.split(',') || [])],
+const trustedOrigins = [
+    'http://localhost:5173',
+    ...(process.env.TRUSTED_ORIGIN?.split(',') || []),
+]
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (trustedOrigins.includes(origin)) return callback(null, true);
+        return callback(null, false);
+    },
     credentials: true,
 };
 
 app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhook);
 
 app.use(express.json());

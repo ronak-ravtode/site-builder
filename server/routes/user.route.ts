@@ -1,5 +1,5 @@
 import express from "express";
-import { purchaseCredits,createUserProject, getUserCredits, getUserProject, getUserProjects, togglePublish } from "../controllers/user.controller.js";
+import { confirmCheckoutSession, purchaseCredits,createUserProject, getUserCredits, getUserProject, getUserProjects, togglePublish } from "../controllers/user.controller.js";
 import { protect } from "../middlewares/auth.js";
 
 const userRouter = express.Router();
@@ -10,6 +10,7 @@ userRouter.get('/project/:projectId',protect,getUserProject);
 userRouter.get('/projects',protect,getUserProjects);
 userRouter.get('/publish-toggle/:projectId',protect,togglePublish);
 userRouter.post('/purchase-credits',protect,purchaseCredits);
+userRouter.post('/confirm-checkout', protect, confirmCheckoutSession);
 
 export default userRouter;
 

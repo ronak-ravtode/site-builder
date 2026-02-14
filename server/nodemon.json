@@ -1,0 +1,21 @@
+{
+  "watch": [
+    "server.ts",
+    "controllers",
+    "routes",
+    "lib",
+    "middlewares"
+  ],
+  "ext": "ts,json",
+  "ignore": [
+    "dist/**",
+    "node_modules/**",
+    "node_modules/.cache/**",
+    "prisma/**",
+    "generated/**",
+    ".git/**",
+    "**/*.log"
+  ],
+  "exec": "tsx server.ts",
+  "delay": 200
+}

@@ -1,22 +1,33 @@
 import { useEffect, useState } from 'react'
-import { assets } from '../assets/assets.js';
-import { Link, useNavigate } from 'react-router-dom';
-import { authClient } from '@/lib/auth-client.js';
+import { assets } from '../assets/assets';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { authClient } from '@/lib/auth-client';
 import { UserButton } from '@daveyplate/better-auth-ui';
-import api from '@/configs/axios.js';
+import api from '@/configs/axios';
 import { toast } from 'sonner';
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const [credits, setCredits] = useState(0);
+    console.log(credits)
 
-    const {data: session} = authClient.useSession();
-    
+    const { data: session } = authClient.useSession();
+
     const getCredits = async () => {
         try {
-            const {data} = await api.get('/api/user/credits');
-            setCredits(data.credits);
+            const { data } = await api.get('/api/user/credits', {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    Pragma: 'no-cache',
+                },
+                params: {
+                    _t: Date.now(),
+                },
+            });
+            console.log(data);
+            setCredits(typeof data?.credits === 'number' ? data.credits : Number(data?.credits ?? 0));
         } catch (error: any) {
             toast.error(error?.response?.data?.message || error.message);
             console.log(error);
@@ -27,7 +38,7 @@ const Navbar = () => {
         if (session?.user) {
             getCredits();
         }
-    }, [session?.user]);
+    }, [session?.user, location.pathname]);
 
     return (
         <>
@@ -47,11 +58,11 @@ const Navbar = () => {
                 <div className="flex items-center gap-3">
                     {!session?.user ? (
                         <button onClick={() => navigate('/auth/sign-in')} className="px-6 py-1.5 max-sm:text-sm bg-indigo-600 active:scale-95 hover:bg-indigo-700 transition rounded">
-                        Get started
-                    </button>) : (
+                            Get started
+                        </button>) : (
                         <>
-                        <button className='bg-white/10 px-5 py-1.5 text-xs sm:text-sm border text-gray-200 rounded-full' >Credits: <span className="text-indigo-300">{credits}</span></button>
-                        <UserButton size='icon' />
+                            <button className='bg-white/10 px-5 py-1.5 text-xs sm:text-sm border text-gray-200 rounded-full' >Credits: <span className="text-indigo-300">{credits}</span></button>
+                            <UserButton size='icon' />
                         </>
                     )}
                     <button id="open-menu" className="md:hidden active:scale-90 transition" onClick={() => setMenuOpen(true)} >

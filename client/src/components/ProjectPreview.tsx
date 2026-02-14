@@ -88,7 +88,7 @@ const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({proj
         {
             project.current_code ? (
                 <>
-                    <iframe className={`h-full max-sm:w-full ${resoultions[device]} max-auto transition-all`} ref={iframeRef} srcDoc={injectPreview(project.current_code)}></iframe>
+                    <iframe key={project.current_code} className={`h-full max-sm:w-full ${resoultions[device]} max-auto transition-all`} ref={iframeRef} srcDoc={injectPreview(project.current_code)}></iframe>
                     {showEditorPanel && selectedElement && (
                         <EditorPanel selectedElement={selectedElement} onUpdate={handleUpdate} onClose={()=>{
                             setSelectedElement(null);

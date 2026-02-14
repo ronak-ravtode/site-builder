@@ -18,6 +18,23 @@ export const getUserCredits = async (req: Request, res: Response) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" })
         }
+
+        if (user.credits === 0 && user.totalCreation === 0) {
+            const updated = await prisma.user.update({
+                where: { id: userId },
+                data: { credits: 20 },
+                select: { credits: true },
+            });
+
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            return res.status(200).json({ credits: updated.credits })
+        }
+
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         return res.status(200).json({ credits: user?.credits })
     } catch (error: any) {
         console.log(error)
@@ -411,7 +428,7 @@ export const purchaseCredits = async (req: Request<{ projectId: string }>, res: 
                 userId: userId!,
                 planId: planId,
                 amount: plan.amount,
-                credits: plan.credits
+                credits: plan.credits,
             }
         })
 

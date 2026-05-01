@@ -103,7 +103,7 @@ export const createUserProject = async (req: Request, res: Response) => {
             try {
                 // Enhance user prompt
                 const promptEnhanceResponse = await openai.chat.completions.create({
-                    model: 'meta-llama/llama-3.1-8b-instruct:free',
+                    model: 'meta-llama/llama-3.3-70b-instruct:free',
                     messages: [
                         {
                             role: "system",
@@ -145,7 +145,7 @@ export const createUserProject = async (req: Request, res: Response) => {
                 })
 
                 const codeGenerationResponse = await openai.chat.completions.create({
-                    model: 'meta-llama/llama-3.1-8b-instruct:free',
+                    model: 'meta-llama/llama-3.3-70b-instruct:free',
                     messages: [
                         {
                             role: 'system',

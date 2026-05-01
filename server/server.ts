@@ -55,7 +55,7 @@ const clientDistPath = path.join(__dirname, '../client/dist');
 app.use(express.static(clientDistPath));
 
 // Catch-all route to serve the frontend for any non-API routes
-app.get('*', (req: Request, res: Response) => {
+app.get(/.*/, (req: Request, res: Response) => {
     if (req.path.startsWith('/api')) {
         return res.status(404).json({ message: 'API route not found' });
     }

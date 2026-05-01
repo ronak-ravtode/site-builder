@@ -64,7 +64,7 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
 
         // Enhance user Prompt
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'arcee-ai/trinity-mini:free',
+            model: 'google/gemma-4-31b-it:free',
             messages: [
                 {
                     role: 'system',
@@ -105,7 +105,7 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
 
         // Generate website code
         const codeGenerationCode = await openai.chat.completions.create({
-            model: 'arcee-ai/trinity-mini:free',
+            model: 'google/gemma-4-31b-it:free',
             messages: [
                 {
                     role: 'system',

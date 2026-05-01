@@ -6,6 +6,11 @@ import { auth } from './lib/auth.js';
 import userRouter from './routes/user.route.js';
 import projectRouter from './routes/project.route.js';
 import { stripeWebhook } from './controllers/stripeWebhook.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const port = Number(process.env.PORT) || 3000;
 
@@ -44,6 +49,18 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/api/user', userRouter);
 app.use('/api/project', projectRouter);
+
+// Serve static files from the client/dist directory
+const clientDistPath = path.join(__dirname, '../client/dist');
+app.use(express.static(clientDistPath));
+
+// Catch-all route to serve the frontend for any non-API routes
+app.get('*', (req: Request, res: Response) => {
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ message: 'API route not found' });
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+});
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);

@@ -103,7 +103,7 @@ export const createUserProject = async (req: Request, res: Response) => {
             try {
                 // Enhance user prompt
                 const promptEnhanceResponse = await openai.chat.completions.create({
-                    model: 'arcee-ai/trinity-mini:free',
+                    model: 'google/gemma-4-31b-it:free',
                     messages: [
                         {
                             role: "system",
@@ -145,7 +145,7 @@ export const createUserProject = async (req: Request, res: Response) => {
                 })
 
                 const codeGenerationResponse = await openai.chat.completions.create({
-                    model: 'arcee-ai/trinity-mini:free',
+                    model: 'google/gemma-4-31b-it:free',
                     messages: [
                         {
                             role: 'system',

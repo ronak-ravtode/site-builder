@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "start": "node dist/server.js",
-    "dev": "tsx server.ts",
+    "start": "tsx server.ts",
+    "dev": "nodemon",
     "server": "nodemon",
     "build": "tsc",
     "postinstall": "npx prisma generate"
@@ -25,7 +25,8 @@
     "express": "^5.2.1",
     "openai": "^6.21.0",
     "pg": "^8.18.0",
-    "stripe": "^20.3.1"
+    "stripe": "^20.3.1",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/node": "^25.2.1",
@@ -33,7 +34,6 @@
     "nodemon": "^3.1.11",
     "prisma": "^7.3.0",
     "ts-node": "^10.9.2",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

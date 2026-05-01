@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma.js";
-import openai from "../configs/openai.js";
+import { callAI } from "../configs/openai.js";
 import Stripe from "stripe";
 
 // Get User Credits
@@ -102,9 +102,7 @@ export const createUserProject = async (req: Request, res: Response) => {
         void (async () => {
             try {
                 // Enhance user prompt
-                const promptEnhanceResponse = await openai.chat.completions.create({
-                    model: 'meta-llama/llama-3.3-70b-instruct:free',
-                    messages: [
+                const enhancedPrompt = await callAI([
                         {
                             role: "system",
                             content: `You are a prompt enhancement specialist. Take the user's website request and expand it into a detailed, comprehensive prompt that will help create the best possible website.
@@ -123,10 +121,7 @@ export const createUserProject = async (req: Request, res: Response) => {
                             role: "user",
                             content: initial_prompt
                         }
-                    ]
-                })
-
-                const enhancedPrompt = promptEnhanceResponse.choices[0].message.content;
+                    ]);
 
                 await prisma.conversation.create({
                     data: {
@@ -144,9 +139,7 @@ export const createUserProject = async (req: Request, res: Response) => {
                     }
                 })
 
-                const codeGenerationResponse = await openai.chat.completions.create({
-                    model: 'meta-llama/llama-3.3-70b-instruct:free',
-                    messages: [
+                const code = await callAI([
                         {
                             role: 'system',
                             content: `
@@ -179,10 +172,7 @@ export const createUserProject = async (req: Request, res: Response) => {
                             role: 'user',
                             content: enhancedPrompt || ''
                         }
-                    ]
-                })
-
-                const code = codeGenerationResponse.choices[0].message.content || '';
+                    ]);
 
                 if (!code) {
                     await prisma.conversation.create({

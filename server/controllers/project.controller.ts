@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma.js";
-import openai from "../configs/openai.js";
+import { callAI } from "../configs/openai.js";
 
 // Make Revision
 export const makeRevision = async (req: Request<{ projectId: string }>, res: Response) => {
@@ -63,13 +63,11 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
         })
 
         // Enhance user Prompt
-        const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'meta-llama/llama-3.3-70b-instruct:free',
-            messages: [
-                {
-                    role: 'system',
-                    content:
-                        `You are a prompt enhancement specialist. The user wants to make changes to their website. Enhance their request to be more specific and actionable for a web developer.
+        const enhancedPrompt = await callAI([
+            {
+                role: 'system',
+                content:
+                    `You are a prompt enhancement specialist. The user wants to make changes to their website. Enhance their request to be more specific and actionable for a web developer.
 
                     Enhance this by:
                     1. Being specific about what elements to change
@@ -78,15 +76,12 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
                     4. Using clear technical terms
 
                     Return ONLY the enhanced request, nothing else. Keep it concise (1-2 sentences).`
-                },
-                {
-                    role: 'user',
-                    content: `User's request: "${message}"`
-                }
-            ]
-        })
-
-        const enhancedPrompt = promptEnhanceResponse.choices[0].message.content;
+            },
+            {
+                role: 'user',
+                content: `User's request: "${message}"`
+            }
+        ]);
 
         await prisma.conversation.create({
             data: {
@@ -104,13 +99,11 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
         })
 
         // Generate website code
-        const codeGenerationCode = await openai.chat.completions.create({
-            model: 'meta-llama/llama-3.3-70b-instruct:free',
-            messages: [
-                {
-                    role: 'system',
-                    content:
-                        `You are an expert web developer. 
+        const code = await callAI([
+            {
+                role: 'system',
+                content:
+                    `You are an expert web developer. 
 
                     CRITICAL REQUIREMENTS:
                     - Return ONLY the complete updated HTML code with the requested changes.
@@ -121,15 +114,12 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
                     - Return the HTML Code Only, nothing else
 
                     Apply the requested changes while maintaining the Tailwind CSS styling approach.`
-                },
-                {
-                    role: 'user',
-                    content: `Here is the current website code: "${currentProject.current_code}" The user wants this change: "${enhancedPrompt}"`
-                }
-            ]
-        })
-
-        const code = codeGenerationCode.choices[0].message.content || '';
+            },
+            {
+                role: 'user',
+                content: `Here is the current website code: "${currentProject.current_code}" The user wants this change: "${enhancedPrompt}"`
+            }
+        ]);
 
         if (!code) {
             await prisma.conversation.create({

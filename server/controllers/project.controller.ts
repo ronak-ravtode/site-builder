@@ -64,7 +64,7 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
 
         // Enhance user Prompt
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'google/gemini-2.0-flash-exp:free',
+            model: 'meta-llama/llama-3.1-8b-instruct:free',
             messages: [
                 {
                     role: 'system',
@@ -105,7 +105,7 @@ export const makeRevision = async (req: Request<{ projectId: string }>, res: Res
 
         // Generate website code
         const codeGenerationCode = await openai.chat.completions.create({
-            model: 'google/gemini-2.0-flash-exp:free',
+            model: 'meta-llama/llama-3.1-8b-instruct:free',
             messages: [
                 {
                     role: 'system',
